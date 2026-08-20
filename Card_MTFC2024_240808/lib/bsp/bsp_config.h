@@ -12,8 +12,8 @@
 #define     AC_TYPE           1
 #define     DC_TYPE           0
 
-#define     MAIN_DEBUG               0    
-#define     OUPUT_DEBUG              1
+#define     MAIN_DEBUG               1    
+#define     OUPUT_DEBUG              0
 #define     ERROR_DEBUG              0       
 
 /**

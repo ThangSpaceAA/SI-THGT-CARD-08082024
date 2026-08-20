@@ -252,7 +252,9 @@ void setup()
     mtfc_card_installed = true;
   }
   cardCom.attachInterupt(mtfc_card_com_event_handler);
+
   digitalWrite(LED_STATUS_GATE, HIGH);
+
   debug(MAIN_DEBUG, "\r\nsn setup: %s\r\nimei setup: %ld\r\nphase: %d\r\nis railway enable setup: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
         mtfc_card_config.sn,
         mtfc_card_config.imei,
@@ -530,12 +532,11 @@ void mtfc_sensor_detect_processing(type_mtfc_workbase_t *mtfc_wk)
 void mtfc_card_data_processing(void)
 {
   // Ghi cau hinh phan cung
-  if (mtfc_sys_flag.isWriteConfig)
+  // debug(MAIN_DEBUG, "trang thai is Write Config: %d\r\n", mtfc_sys_flag.isWriteConfig);
+  if (mtfc_sys_flag.isWriteConfig == true)
   {
-    mtfc_sys_flag.isWriteConfig = false;
     if ((cardWorkingState == CMD_STATE) || (mtfc_sys_flag.time_setting))
     {
-      mtfc_sys_flag.time_setting = false;
       debug(MAIN_DEBUG, "trang thai card working start: %d\r\n", cardWorkingState);
       debug(MAIN_DEBUG, "trang thai mtfc sys flag time setting: %d\r\n", mtfc_sys_flag.time_setting);
       type_one_cardConfig_t temp = mtfc_card_config_update;
@@ -554,7 +555,7 @@ void mtfc_card_data_processing(void)
             mtfc_card_config_update.option_pin_config.op_green);
 
       mtfc_write_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&temp, sizeof(type_one_cardConfig_t));
-      delay(200);
+      delay(500);
       memset((uint8_t *)&temp, 0, sizeof(type_one_cardConfig_t));
       mtfc_read_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&temp, sizeof(type_one_cardConfig_t));
 
@@ -576,7 +577,7 @@ void mtfc_card_data_processing(void)
         mtfc_card_installed = false;
       }
     }
-    debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d",
+    debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable 1: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d",
           mtfc_card_config.sn,
           mtfc_card_config.imei,
           mtfc_card_config.phase,
@@ -584,7 +585,8 @@ void mtfc_card_data_processing(void)
           mtfc_card_config.is_walking_enabled,
           mtfc_card_config.is_dependent_phase,
           mtfc_card_config.time_delay_dependent_phase);
-    // mtfc_sys_flag.isWriteConfig = false;
+
+    mtfc_sys_flag.isWriteConfig = false;
   }
   // Xoa du lieu cai dat phan cung
   if (mtfc_sys_flag.isDeleteConfig)
@@ -629,7 +631,7 @@ void mtfc_card_data_processing(void)
     {
       debug(MAIN_DEBUG, "\r\n%s", "Send back Config");
       cardCom.send_struct(MSP_CARD_READ_CONFIG, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
-      debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\n time dephent delay: %d",
+      debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable 2: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\n time dephent delay: %d",
             mtfc_card_config.sn,
             mtfc_card_config.imei,
             mtfc_card_config.phase,
@@ -696,14 +698,17 @@ void mtfc_read_mode_active(void)
   static cardWorkingState_t cardWorkingStateOLD = NO_CONFIG_STATE;
   if (mtfc_hardware_select_card())
   {
+      // debug(MAIN_DEBUG, "%s" ,"CMD STATE\r\n");
     cardWorkingState = CMD_STATE;
   }
   else if (mtfc_card_installed)
   {
+    // debug(MAIN_DEBUG, "%s" ,"ACTIVE STATE\r\n");
     cardWorkingState = ACTIVE_STATE;
   }
   else
   {
+    // debug(MAIN_DEBUG, "%s" ,"NO CONFIG STATE\r\n");
     cardWorkingState = NO_CONFIG_STATE;
   }
   if (cardWorkingStateOLD != cardWorkingState)
@@ -782,10 +787,8 @@ int8_t mtfc_memory_startup_load(void)
     mtfc_card_config.phase = 0;
     mtfc_card_config.is_railway_enabled = 0;
     // deviceConfig.phase = NO_CONFIG_PHASE;
-    //  mtfc_write_eeprom_api(0, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
     mtfc_write_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
     delay(200);
-    // mtfc_read_eeprom_api(0, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
     mtfc_read_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
   }
   if ((mtfc_card_config.phase >= 1) && (mtfc_card_config.phase <= 8))
@@ -835,7 +838,6 @@ void mtfc_output_buffer_to_hardware(type_mtfc_card_data_t *dat, type_one_cardCon
       }
     }
     mtfc_output_hardware(out);
-    // mtfc_output_option_hardware(out, config);
 
     mtfc_output_right(out); // tắt mũi tên rẽ phải (thangnm)
     debug(OUPUT_DEBUG, "\r\ndata output: [%02X]", out);
@@ -953,6 +955,7 @@ void mtfc_output_option_hardware(uint8_t data, type_one_cardConfig_t *card)
     clearPin(OUT_OP1_GATE);
   }
 }
+
 // yêu cầu mũi tên rẻ phải (thangnm)
 void mtfc_output_right(uint8_t dat)
 {
