@@ -253,7 +253,7 @@ void setup()
   }
   cardCom.attachInterupt(mtfc_card_com_event_handler);
   digitalWrite(LED_STATUS_GATE, HIGH);
-  debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
+  debug(MAIN_DEBUG, "\r\nsn setup: %s\r\nimei setup: %ld\r\nphase: %d\r\nis railway enable setup: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
         mtfc_card_config.sn,
         mtfc_card_config.imei,
         mtfc_card_config.phase,
@@ -532,13 +532,15 @@ void mtfc_card_data_processing(void)
   // Ghi cau hinh phan cung
   if (mtfc_sys_flag.isWriteConfig)
   {
+    mtfc_sys_flag.isWriteConfig = false;
     if ((cardWorkingState == CMD_STATE) || (mtfc_sys_flag.time_setting))
     {
       mtfc_sys_flag.time_setting = false;
-
+      debug(MAIN_DEBUG, "trang thai card working start: %d\r\n", cardWorkingState);
+      debug(MAIN_DEBUG, "trang thai mtfc sys flag time setting: %d\r\n", mtfc_sys_flag.time_setting);
       type_one_cardConfig_t temp = mtfc_card_config_update;
 
-      debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
+      debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable time setting: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
             mtfc_card_config_update.sn,
             mtfc_card_config_update.imei,
             mtfc_card_config_update.phase,
@@ -555,6 +557,7 @@ void mtfc_card_data_processing(void)
       delay(200);
       memset((uint8_t *)&temp, 0, sizeof(type_one_cardConfig_t));
       mtfc_read_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&temp, sizeof(type_one_cardConfig_t));
+
       if ((temp.phase != mtfc_card_config_update.phase))
       {
         // Phan hoi error
@@ -581,7 +584,7 @@ void mtfc_card_data_processing(void)
           mtfc_card_config.is_walking_enabled,
           mtfc_card_config.is_dependent_phase,
           mtfc_card_config.time_delay_dependent_phase);
-    mtfc_sys_flag.isWriteConfig = false;
+    // mtfc_sys_flag.isWriteConfig = false;
   }
   // Xoa du lieu cai dat phan cung
   if (mtfc_sys_flag.isDeleteConfig)
@@ -644,7 +647,7 @@ void mtfc_card_data_processing(void)
 #pragma region INTERRUP READ STEAM DATA CART_RX
 void mtfc_card_com_event_handler(void)
 {
-  // debug(MAIN_DEBUG, "\r\ncardCom.getMSP():%d\n", cardCom.getMSP());
+  debug(MAIN_DEBUG, "\r\ncardCom.getMSP():%d\n", cardCom.getMSP());
   switch (cardCom.getMSP())
   {
   case MSP_CARD_WRITE_DATA:
@@ -692,11 +695,17 @@ void mtfc_read_mode_active(void)
 {
   static cardWorkingState_t cardWorkingStateOLD = NO_CONFIG_STATE;
   if (mtfc_hardware_select_card())
+  {
     cardWorkingState = CMD_STATE;
+  }
   else if (mtfc_card_installed)
+  {
     cardWorkingState = ACTIVE_STATE;
+  }
   else
+  {
     cardWorkingState = NO_CONFIG_STATE;
+  }
   if (cardWorkingStateOLD != cardWorkingState)
   {
     debug(MAIN_DEBUG, "\r\ncardWorkingState : %d", cardWorkingState);
@@ -904,7 +913,7 @@ void mtfc_output_hardware(uint8_t dat)
     led_status_delay_count = 0;
   }
   else{
-    debug(MAIN_DEBUG, "%s\r\n", "dang chay off den do");
+    // debug(MAIN_DEBUG, "%s\r\n", "dang chay off den do");
     clearPin(OUT_RED_GATE);
   }
   if (dat & 0x08)
