@@ -116,6 +116,13 @@ enum cardWorkingState_t
 
 typedef struct __attribute__((packed))
 {
+    uint8_t op_red; 
+    uint8_t op_yellow;
+    uint8_t op_green;
+} type_mtfc_card_config_option_t;
+
+typedef struct __attribute__((packed))
+{
     char sn[32];
     uint32_t imei;
     uint8_t phase;
@@ -123,8 +130,9 @@ typedef struct __attribute__((packed))
     uint8_t is_walking_enabled;
     uint8_t is_dependent_phase;
     uint8_t time_delay_dependent_phase;
+    uint8_t option_card;
+    type_mtfc_card_config_option_t option_pin_config;
 } type_one_cardConfig_t;
-
 
 typedef struct __attribute__((packed)) {
     uint32_t    imei;
