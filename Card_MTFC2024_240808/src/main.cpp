@@ -537,8 +537,6 @@ void mtfc_card_data_processing(void)
   {
     if ((cardWorkingState == CMD_STATE) || (mtfc_sys_flag.time_setting))
     {
-      debug(MAIN_DEBUG, "trang thai card working start: %d\r\n", cardWorkingState);
-      debug(MAIN_DEBUG, "trang thai mtfc sys flag time setting: %d\r\n", mtfc_sys_flag.time_setting);
       type_one_cardConfig_t temp = mtfc_card_config_update;
 
       debug(MAIN_DEBUG, "\r\nsn: %s\r\nimei: %ld\r\nphase: %d\r\nis railway enable time setting: %d\r\nis walking enable: %d\r\nis dependent enable: %d\r\ntime dephent delay: %d\r\noption card: %d\r\noption red: %d\r\noption yellow: %d\r\noption green: %d",
