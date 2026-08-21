@@ -12,7 +12,7 @@
 #define     AC_TYPE           1
 #define     DC_TYPE           0
 
-#define     MAIN_DEBUG               1    
+#define     MAIN_DEBUG               0    
 #define     OUPUT_DEBUG              0
 #define     ERROR_DEBUG              0       
 
@@ -107,12 +107,12 @@
 
 //Dinh nghia cac cau truc bien
 
-enum cardWorkingState_t
+typedef enum 
 {
     ACTIVE_STATE = 0,
     CMD_STATE,
     NO_CONFIG_STATE,
-};
+}cardWorkingState_t;
 
 typedef struct __attribute__((packed))
 {
@@ -130,8 +130,6 @@ typedef struct __attribute__((packed))
     uint8_t is_walking_enabled;
     uint8_t is_dependent_phase;
     uint8_t time_delay_dependent_phase;
-    uint8_t option_card;
-    type_mtfc_card_config_option_t option_pin_config;
 } type_one_cardConfig_t;
 
 typedef struct __attribute__((packed)) {
@@ -150,6 +148,10 @@ typedef struct __attribute__((packed)) {
     volatile bool        time_setting;
     volatile bool        is_turn_right; 
 }type_sysFlag_t;
+
+typedef struct __attribute__((packed)){
+    volatile uint8_t isWriteConfig;
+}type_system_config_t;
 
 typedef struct __attribute__((packed))
 {
