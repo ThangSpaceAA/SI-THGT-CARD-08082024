@@ -695,7 +695,6 @@ void mtfc_read_mode_active(void)
   }
   else
   {
-    // debug(MAIN_DEBUG, "%s\r\n","trang thai no config state");
     cardWorkingState = NO_CONFIG_STATE;
   }
   if (cardWorkingStateOLD != cardWorkingState)
@@ -755,7 +754,6 @@ int8_t mtfc_memory_startup_load(void)
   memset((uint8_t *)&mtfc_card_config, 0, sizeof(type_one_cardConfig_t));
   memset((uint8_t *)&mtfc_card_config_update, 0, sizeof(type_one_cardConfig_t));
   memset((uint8_t *)&cardDataSensor, 0, sizeof(type_cardDataInOut_t));
-  // mtfc_read_eeprom_api(0, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
   mtfc_read_flash_api(ADDR_STORAGE_INFO_CARD, (uint8_t *)&mtfc_card_config, sizeof(type_one_cardConfig_t));
   if (strstr((char *)&mtfc_card_config.sn, "Si") == NULL)
   {
@@ -932,7 +930,6 @@ void mtfc_output_hardware(uint8_t dat)
   mtfc_sys_flag.is_enable_process_readSensor = true;
 }
 
-
 // yêu cầu mũi tên rẻ phải (thangnm)
 void mtfc_output_right(uint8_t dat)
 {
@@ -986,8 +983,6 @@ void settings_storage(void)
   if (SerialFlash.begin(FLASH_CHIP_SELECT))
   {
     debug(MAIN_DEBUG, "%s\r\n", "OK");
-    // digitalWrite(LED_STATUS_GATE, HIGH);
-    // while(1);
   }
   else
   {
